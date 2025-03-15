@@ -1,0 +1,52 @@
+# Byte-compiled / compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+*.egg-info/
+
+# Flask/Django secret key
+instance/
+.env
+*.env
+
+# Logs & debug files
+*.log
+*.out
+*.err
+logs/
+debug.log
+
+# Database
+*.sqlite3
+db.sqlite3
+pgdata/
+postgres_data/
+
+# Docker
+*.pid
+docker-compose.override.yml
+docker-compose.dev.yml
+.env.docker
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Ignore Python cache & dependencies
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore built distributions
+dist/
+build/
+wheelhouse/
+
+# Ignore gunicorn logs
+gunicorn.log
+gunicorn.err

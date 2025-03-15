@@ -1,0 +1,43 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        FLASK_APP: ${FLASK_APP}
+        PYTHONUNBUFFERED: ${PYTHONUNBUFFERED}
+        GUNICORN_WORKERS: ${GUNICORN_WORKERS}
+        GUNICORN_BIND: ${GUNICORN_BIND}
+    restart: always
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable
+    volumes:
+      - .:/app
+    command: ["flask", "run", "--host=0.0.0.0", "--port=${WEB_PORT}"]
+
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:  
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+volumes:
+  postgres_data:
