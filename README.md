@@ -48,25 +48,27 @@ In summary, Echo serves as a centralized platform where business strategy, produ
 ## Steps to run:
 1 Create a `.env` file in your project root and add the following variables:
 
-`#Database Configuration
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-POSTGRES_DB=
-DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable
+`#Database Configuration`
+`POSTGRES_USER=`
+`POSTGRES_PASSWORD=`
+`POSTGRES_DB=`
+`DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable`
 
-#Security Keys
-FLASK_SECRET_KEY=
-JWT_SECRET_KEY=
+`#Security Keys`
+`FLASK_SECRET_KEY=`
+`JWT_SECRET_KEY=`
 
-#Ports & Gunicorn Configuration
-WEB_PORT=5005
-DB_PORT=5435
-GUNICORN_BIND=0.0.0.0:5435
-GUNICORN_WORKERS=4
+`#Ports & Gunicorn Configuration`
+`WEB_PORT=5005`
+`DB_PORT=5435`
+`GUNICORN_BIND=0.0.0.0:5435`
+`GUNICORN_WORKERS=4`
 
-#Flask Settings
-FLASK_APP=run.py
-PYTHONUNBUFFERED=1`
+`#Flask Settings`
+`FLASK_APP=run.py`
+`PYTHONUNBUFFERED=1`
+`FLASK_ENV=development or production`
+`FLASK_DEBUG=1 or 0`
 
 * * * * *
 
@@ -74,16 +76,16 @@ PYTHONUNBUFFERED=1`
 
 Ensure you're using the latest package versions:
 
-`pip3 install --upgrade pip
-pip3 install --upgrade -r requirements.txt`
+`pip3 install --upgrade pip`
+`pip3 install --upgrade -r requirements.txt`
 
 * * * * *
 
 ### **3 Set Up Your Dockerized Flask + PostgreSQL Environment**
 
-`docker-compose down        # Stop and remove containers
-docker-compose build       # Rebuild the images
-docker-compose up -d       # Start containers in detached mode`
+`docker-compose down        # Stop and remove containers`
+`docker-compose build       # Rebuild the images`
+`docker-compose up -d       # Start containers in detached mode`
 
 * * * * *
 
@@ -91,8 +93,9 @@ docker-compose up -d       # Start containers in detached mode`
 
 To enter the running **PostgreSQL container** and interact with the database:
 
-`docker ps  # Get container ID
-docker exec -it <container_id> psql -U admin -d echo_db`
+`docker ps  # Get container ID`
+`docker exec -it <container_id> psql -U admin -d echo_db`
+
 
 * * * * *
 

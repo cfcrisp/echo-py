@@ -3,6 +3,7 @@ from app.api import bp
 from app.models.user import User
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import uuid
 
 @bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -63,36 +64,29 @@ def create_user():
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
     
-    # Check if username or email already exists within tenant
-    if User.query.filter_by(tenant_id=current_user.tenant_id, username=data['username']).first():
-        return jsonify({'error': 'Username already in use within this tenant'}), 400
-    if User.query.filter_by(tenant_id=current_user.tenant_id, email=data['email']).first():
-        return jsonify({'error': 'Email already in use within this tenant'}), 400
-    
-    # Validate role
-    valid_roles = ['admin', 'business', 'product']
-    if data['role'] not in valid_roles:
-        return jsonify({'error': f"Invalid role. Must be one of: {', '.join(valid_roles)}"}), 400
-    
-    # Create new user
-    user = User(
+    # Use AuthService to register user
+    from app.services.auth_service import AuthService
+    result, status_code = AuthService.register_user(
         tenant_id=current_user.tenant_id,
         username=data['username'],
         email=data['email'],
+        password=data['password'],
         role=data['role']
     )
-    user.set_password(data['password'])
     
-    db.session.add(user)
-    db.session.commit()
+    # If successful, return just the user data without tokens
+    if status_code == 201 and 'user' in result:
+        user_data = result['user']
+        return jsonify({
+            'id': user_data['id'],
+            'username': user_data['username'],
+            'email': user_data['email'],
+            'role': user_data['role'],
+            'created_at': User.query.get(uuid.UUID(user_data['id'])).created_at.isoformat()
+        }), 201
     
-    return jsonify({
-        'id': str(user.id),
-        'username': user.username,
-        'email': user.email,
-        'role': user.role,
-        'created_at': user.created_at.isoformat()
-    }), 201
+    # Otherwise return the error
+    return jsonify(result), status_code
 
 @bp.route('/users/<uuid:user_id>', methods=['PUT'])
 @jwt_required()

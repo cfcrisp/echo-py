@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}Register - Echo{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Register for Echo</h2>
+    <form id="register-form">
+        <div class="form-group">
+            <label for="tenant-name">Organization Name</label>
+            <input type="text" id="tenant-name" name="tenant_name" required>
+        </div>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn">Register</button>
+        </div>
+        <div class="form-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const tenant_name = document.getElementById('tenant-name').value;
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        fetch('/auth/register-tenant', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tenant_name, username, email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                // Store tokens in localStorage
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('tenant', JSON.stringify(data.tenant));
+                
+                // Redirect to dashboard
+                window.location.href = '/';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during registration');
+        });
+    });
+</script>
+{% endblock %}

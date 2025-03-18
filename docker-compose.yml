@@ -17,6 +17,8 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
     volumes:
       - .:/app
     command: ["flask", "run", "--host=0.0.0.0", "--port=${WEB_PORT}"]

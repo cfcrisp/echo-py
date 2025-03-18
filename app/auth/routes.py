@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from app.auth import bp
 from app.models.user import User
 from app.models.tenant import Tenant
@@ -48,6 +48,14 @@ def refresh():
     
     return jsonify({'access_token': access_token})
 
+@bp.route('/login', methods=['GET'])
+def login_page():
+    return render_template('auth/login.html')
+
+@bp.route('/register', methods=['GET'])
+def register_page():
+    return render_template('auth/register.html')
+
 @bp.route('/register-tenant', methods=['POST'])
 def register_tenant():
     data = request.get_json() or {}
@@ -58,45 +66,45 @@ def register_tenant():
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
     
-    # Check if email is already in use
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({'error': 'Email already in use'}), 400
-    
-    # Create new tenant
-    tenant = Tenant(
-        name=data['tenant_name'],
-        plan_tier=data.get('plan_tier', 'basic')
-    )
-    db.session.add(tenant)
-    
-    # Create admin user for the tenant
-    user = User(
-        tenant_id=tenant.id,
+    # Use AuthService to register tenant
+    from app.services.auth_service import AuthService
+    result, status_code = AuthService.register_tenant(
+        tenant_name=data['tenant_name'],
         username=data['username'],
         email=data['email'],
-        role='admin'
+        password=data['password'],
+        plan_tier=data.get('plan_tier', 'basic')
     )
-    user.set_password(data['password'])
-    db.session.add(user)
     
-    db.session.commit()
+    return jsonify(result), status_code
+
+@bp.route('/register-user', methods=['POST'])
+@jwt_required()
+def register_user():
+    # Get current user from JWT token
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get_or_404(current_user_id)
     
-    # Create tokens
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+    # Check if current user has admin role
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Admin role required'}), 403
     
-    return jsonify({
-        'tenant': {
-            'id': str(tenant.id),
-            'name': tenant.name,
-            'plan_tier': tenant.plan_tier
-        },
-        'user': {
-            'id': str(user.id),
-            'username': user.username,
-            'email': user.email,
-            'role': user.role
-        },
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    }), 201
+    data = request.get_json() or {}
+    
+    # Validate required fields
+    required_fields = ['username', 'email', 'password', 'role']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+    
+    # Use AuthService to register user
+    from app.services.auth_service import AuthService
+    result, status_code = AuthService.register_user(
+        tenant_id=current_user.tenant_id,
+        username=data['username'],
+        email=data['email'],
+        password=data['password'],
+        role=data['role']
+    )
+    
+    return jsonify(result), status_code
