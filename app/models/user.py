@@ -8,10 +8,9 @@ class User(db.Model):
     
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('tenants.id', ondelete='CASCADE'), nullable=False)
-    username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='user', server_default='user')
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -21,8 +20,8 @@ class User(db.Model):
     
     # Constraints
     __table_args__ = (
-        db.UniqueConstraint('tenant_id', 'username', name='unique_tenant_username'),
         db.UniqueConstraint('tenant_id', 'email', name='unique_tenant_email'),
+        db.CheckConstraint("role IN ('user', 'admin')", name='check_valid_role'),
     )
     
     def set_password(self, password):
@@ -32,4 +31,4 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
     
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.email}>'

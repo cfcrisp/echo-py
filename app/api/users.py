@@ -18,7 +18,6 @@ def get_users():
         'users': [
             {
                 'id': str(user.id),
-                'username': user.username,
                 'email': user.email,
                 'role': user.role,
                 'created_at': user.created_at.isoformat()
@@ -40,7 +39,6 @@ def get_user(user_id):
     
     return jsonify({
         'id': str(user.id),
-        'username': user.username,
         'email': user.email,
         'role': user.role,
         'created_at': user.created_at.isoformat()
@@ -59,7 +57,7 @@ def create_user():
     data = request.get_json() or {}
     
     # Validate required fields
-    required_fields = ['username', 'email', 'password', 'role']
+    required_fields = [ 'email', 'password', 'role']
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -68,7 +66,6 @@ def create_user():
     from app.services.auth_service import AuthService
     result, status_code = AuthService.register_user(
         tenant_id=current_user.tenant_id,
-        username=data['username'],
         email=data['email'],
         password=data['password'],
         role=data['role']
@@ -79,7 +76,6 @@ def create_user():
         user_data = result['user']
         return jsonify({
             'id': user_data['id'],
-            'username': user_data['username'],
             'email': user_data['email'],
             'role': user_data['role'],
             'created_at': User.query.get(uuid.UUID(user_data['id'])).created_at.isoformat()
@@ -105,14 +101,6 @@ def update_user(user_id):
     
     data = request.get_json() or {}
     
-    # Update user fields
-    if 'username' in data:
-        # Check if username is already taken within tenant
-        existing_user = User.query.filter_by(tenant_id=current_user.tenant_id, username=data['username']).first()
-        if existing_user and existing_user.id != user.id:
-            return jsonify({'error': 'Username already in use within this tenant'}), 400
-        user.username = data['username']
-    
     if 'email' in data:
         # Check if email is already taken within tenant
         existing_user = User.query.filter_by(tenant_id=current_user.tenant_id, email=data['email']).first()
@@ -125,7 +113,7 @@ def update_user(user_id):
         if current_user.role != 'admin':
             return jsonify({'error': 'Admin role required to change user roles'}), 403
         
-        valid_roles = ['admin', 'business', 'product']
+        valid_roles = ['user', 'admin']
         if data['role'] not in valid_roles:
             return jsonify({'error': f"Invalid role. Must be one of: {', '.join(valid_roles)}"}), 400
         
@@ -138,7 +126,6 @@ def update_user(user_id):
     
     return jsonify({
         'id': str(user.id),
-        'username': user.username,
         'email': user.email,
         'role': user.role,
         'updated_at': user.updated_at.isoformat()

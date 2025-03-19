@@ -25,4 +25,4 @@ ENV GUNICORN_WORKERS=${GUNICORN_WORKERS}
 ENV GUNICORN_BIND=${GUNICORN_BIND}
 
 # Run the application
-CMD ["gunicorn", "--bind", "${GUNICORN_BIND}", "--workers", "${GUNICORN_WORKERS}", "run:app"]
+CMD ["gunicorn", "--bind", "${GUNICORN_BIND}", "--workers", "${GUNICORN_WORKERS}", "app:app"]

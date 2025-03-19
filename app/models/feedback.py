@@ -1,6 +1,7 @@
 from app.extensions import db
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import foreign
 
 # Junction table for feedback and customers
 feedback_customers = db.Table('feedback_customers',
@@ -29,7 +30,7 @@ class Feedback(db.Model):
     tenant = db.relationship('Tenant', back_populates='feedback')
     customers = db.relationship('Customer', secondary=feedback_customers, back_populates='feedback')
     initiatives = db.relationship('Initiative', secondary=feedback_initiatives, back_populates='feedback')
-    comments = db.relationship('Comment', primaryjoin="and_(Comment.entity_type=='feedback', Comment.entity_id==Feedback.id)", back_populates='feedback')
+    comments = db.relationship('Comment', primaryjoin="and_(Comment.entity_type=='feedback', foreign(Comment.entity_id)==Feedback.id)", back_populates='feedback', overlaps="idea,initiative")
     
     def __repr__(self):
         return f'<Feedback {self.title}>'

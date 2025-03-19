@@ -1,6 +1,7 @@
 from app.extensions import db
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import foreign
 
 # Junction table for ideas and customers
 ideas_customers = db.Table('ideas_customers',
@@ -27,7 +28,7 @@ class Idea(db.Model):
     tenant = db.relationship('Tenant', back_populates='ideas')
     initiative = db.relationship('Initiative', back_populates='ideas')
     customers = db.relationship('Customer', secondary=ideas_customers, back_populates='ideas')
-    comments = db.relationship('Comment', primaryjoin="and_(Comment.entity_type=='idea', Comment.entity_id==Idea.id)", back_populates='idea')
+    comments = db.relationship('Comment', primaryjoin="and_(Comment.entity_type=='idea', foreign(Comment.entity_id)==Idea.id)", back_populates='idea', overlaps="feedback,initiative")
     
     def __repr__(self):
         return f'<Idea {self.title}>'

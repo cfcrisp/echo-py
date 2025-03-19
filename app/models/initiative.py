@@ -1,6 +1,7 @@
 from app.extensions import db
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import foreign
 
 class Initiative(db.Model):
     __tablename__ = 'initiatives'
@@ -20,6 +21,7 @@ class Initiative(db.Model):
     goal = db.relationship('Goal', back_populates='initiatives')
     ideas = db.relationship('Idea', back_populates='initiative', lazy='dynamic')
     feedback = db.relationship('Feedback', secondary='feedback_initiatives', back_populates='initiatives')
+    comments = db.relationship('Comment', primaryjoin="and_(Comment.entity_type=='initiative', foreign(Comment.entity_id)==Initiative.id)", back_populates='initiative', overlaps="idea,feedback")
     
     def __repr__(self):
         return f'<Initiative {self.title}>'

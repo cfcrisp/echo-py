@@ -66,7 +66,7 @@ GUNICORN_BIND=0.0.0.0:5435
 GUNICORN_WORKERS=4
 
 #Flask Settings
-FLASK_APP=run.py
+FLASK_APP=app.py
 PYTHONUNBUFFERED=1
 FLASK_ENV=development or production
 FLASK_DEBUG=1 or 0

@@ -1,3 +1,4 @@
+# app/services/auth_service.py
 from app.models import User, Tenant
 from app.extensions import db
 from flask_jwt_extended import get_jwt_identity, create_access_token, create_refresh_token
@@ -7,101 +8,113 @@ import re
 
 class AuthService:
     @staticmethod
-    def register_tenant(tenant_name, username, email, password, plan_tier='basic'):
+    def register_tenant(domain_name, email, password, plan_tier='basic'):
         """
-        Register a new tenant with an admin user
+        Register a new tenant with an initial admin user if domain_name is new,
+        or register a new user under an existing tenant if domain_name exists.
         
         Parameters:
-        - tenant_name: Name of the tenant/organization
-        - username: Username for the admin user
-        - email: Email for the admin user
-        - password: Password for the admin user
-        - plan_tier: Subscription tier (default: 'basic')
+        - domain_name: Domain name of the organization (e.g., example.com)
+        - email: Email for the user
+        - password: Password for the user
+        - plan_tier: Subscription tier (default: 'basic') - used only for new tenants
         
-        Returns a tuple of (tenant, user, access_token, refresh_token)
+        Returns a tuple of (response_dict, status_code)
         """
         # Validate inputs
-        validation_errors = AuthService.validate_registration(tenant_name, username, email, password)
+        validation_errors = AuthService.validate_registration(domain_name, email, password)
         if validation_errors:
             return {'error': validation_errors}, 400
         
-        # Check if email is already in use
+        # Check if email is already in use across all tenants
         if User.query.filter_by(email=email).first():
             return {'error': 'Email already in use'}, 400
+        
+        # Check if tenant exists by domain_name
+        tenant = Tenant.query.filter_by(domain_name=domain_name).first()
+        
+        if tenant:
+            # Domain exists, register a new user under this tenant (default role: 'user')
+            return AuthService.register_user(
+                tenant_id=tenant.id,
+                email=email,
+                password=password,
+                role='user'  # New users on existing tenants default to 'user'
+            )
+        else:
+            # Domain is new, create a new tenant and its first admin user
+            tenant = Tenant(
+                domain_name=domain_name,
+                plan_tier=plan_tier
+            )
+            db.session.add(tenant)
+            db.session.flush()  # Generate tenant ID
             
-        # Create new tenant
-        tenant = Tenant(
-            name=tenant_name,
-            plan_tier=plan_tier
-        )
-        db.session.add(tenant)
-        
-        # Create admin user for the tenant
-        user = User(
-            tenant_id=tenant.id,
-            username=username,
-            email=email,
-            role='admin'
-        )
-        user.set_password(password)
-        db.session.add(user)
-        
-        db.session.commit()
-        
-        # Create tokens
-        access_token = create_access_token(identity=str(user.id))
-        refresh_token = create_refresh_token(identity=str(user.id))
-        
-        return {
-            'tenant': {
-                'id': str(tenant.id),
-                'name': tenant.name,
-                'plan_tier': tenant.plan_tier
-            },
-            'user': {
-                'id': str(user.id),
-                'username': user.username,
-                'email': user.email,
-                'role': user.role
-            },
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }, 201
-    
+            user = User(
+                tenant_id=tenant.id,
+                email=email,
+                role='admin'  # First user of a new tenant is admin
+            )
+            user.set_password(password)
+            db.session.add(user)
+            
+            db.session.commit()
+            
+            # Create tokens with user_id as identity and tenant_id as additional claim
+            access_token = create_access_token(identity=str(user.id), additional_claims={"tenant_id": str(tenant.id)})
+            refresh_token = create_refresh_token(identity=str(user.id), additional_claims={"tenant_id": str(tenant.id)})
+            
+            return {
+                'tenant': {
+                    'id': str(tenant.id),
+                    'domain_name': tenant.domain_name,
+                    'plan_tier': tenant.plan_tier
+                },
+                'user': {
+                    'id': str(user.id),
+                    'email': user.email,
+                    'role': user.role,
+                    'tenant_id': str(user.tenant_id)
+                },
+                'access_token': access_token,
+                'refresh_token': refresh_token
+            }, 201
+
     @staticmethod
-    def register_user(tenant_id, username, email, password, role='business'):
+    def register_user(tenant_id, email, password, role):
         """
         Register a new user within an existing tenant
         
         Parameters:
         - tenant_id: UUID of the tenant
-        - username: Username for the new user
         - email: Email for the new user
         - password: Password for the new user
-        - role: User role (default: 'business')
+        - role: User role 
         
         Returns the created user object and tokens
         """
         # Validate inputs
-        validation_errors = AuthService.validate_registration(None, username, email, password)
+        validation_errors = AuthService.validate_registration(None, email, password)
         if validation_errors:
             return {'error': validation_errors}, 400
             
-        # Check if username or email already exists within tenant
-        if User.query.filter_by(tenant_id=tenant_id, username=username).first():
-            return {'error': 'Username already in use within this tenant'}, 400
+        # Check if tenant exists
+        tenant = Tenant.query.get(tenant_id)
+        if not tenant:
+            return {'error': 'Tenant not found'}, 404
+            
+        # Check if email already exists within tenant
         if User.query.filter_by(tenant_id=tenant_id, email=email).first():
             return {'error': 'Email already in use within this tenant'}, 400
             
         # Validate role
-        valid_roles = ['admin', 'business', 'product']
+        valid_roles = ['user', 'admin']
         if role not in valid_roles:
             return {'error': f"Invalid role. Must be one of: {', '.join(valid_roles)}"}, 400
             
         # Create new user
         user = User(
             tenant_id=tenant_id,
-            username=username,
             email=email,
             role=role
         )
@@ -110,14 +123,13 @@ class AuthService:
         db.session.add(user)
         db.session.commit()
         
-        # Create tokens
-        access_token = create_access_token(identity=str(user.id))
-        refresh_token = create_refresh_token(identity=str(user.id))
+        # Create tokens with user_id as identity and tenant_id as additional claim
+        access_token = create_access_token(identity=str(user.id), additional_claims={"tenant_id": str(user.tenant_id)})
+        refresh_token = create_refresh_token(identity=str(user.id), additional_claims={"tenant_id": str(user.tenant_id)})
         
         return {
             'user': {
                 'id': str(user.id),
-                'username': user.username,
                 'email': user.email,
                 'role': user.role,
                 'tenant_id': str(user.tenant_id)
@@ -127,25 +139,19 @@ class AuthService:
         }, 201
     
     @staticmethod
-    def validate_registration(tenant_name, username, email, password):
+    def validate_registration(domain_name, email, password):
         """
         Validate registration inputs
         
         Returns None if valid, or error message if invalid
         """
-        # Check for empty fields
-        if username and len(username.strip()) < 3:
-            return 'Username must be at least 3 characters'
+        if domain_name and not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$', domain_name):
+            return 'Invalid domain name format'
             
-        if tenant_name and len(tenant_name.strip()) < 2:
-            return 'Organization name must be at least 2 characters'
-            
-        # Validate email format
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, email):
             return 'Invalid email format'
             
-        # Validate password strength
         if len(password) < 8:
             return 'Password must be at least 8 characters'
             
@@ -207,3 +213,30 @@ class AuthService:
             abort(403, description="Access forbidden")
             
         return True
+        
+    @staticmethod
+    def find_tenant_by_domain(domain_name):
+        """
+        Find a tenant by domain name
+        
+        Parameters:
+        - domain_name: Domain name to search for
+        
+        Returns the tenant or None if not found
+        """
+        return Tenant.query.filter_by(domain_name=domain_name).first()
+        
+    @staticmethod
+    def get_domain_from_email(email):
+        """
+        Extract domain from email address
+        
+        Parameters:
+        - email: Email address
+        
+        Returns the domain part of the email
+        """
+        try:
+            return email.split('@')[1]
+        except (IndexError, AttributeError):
+            return None

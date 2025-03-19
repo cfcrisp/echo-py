@@ -4,74 +4,7 @@
     <meta charset="UTF-8">
     <title>Echo Landing Page</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .auth-buttons {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-        .btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 10px;
-            text-decoration: none;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 5px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-actions {
-            text-align: right;
-            margin-top: 20px;
-        }
-    </style>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </head>
 <body>
     <header>
@@ -82,7 +15,7 @@
         </div>
     </header>
     <main>
-        <p>Connecting business goals with product initiatives and feedback.</p>
+        <p>Connecting product feedback to business outcomes.</p>
     </main>
     <footer>
         <p>&copy; 2025 Echo</p>
@@ -116,12 +49,8 @@
             <h2>Register</h2>
             <form id="register-form">
                 <div class="form-group">
-                    <label for="tenant-name">Organization Name</label>
-                    <input type="text" id="tenant-name" name="tenant_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <label for="tenant-name">Organization Domain</label>
+                    <input type="text" id="tenant-name" name="domain_name" placeholder="example.com" required>
                 </div>
                 <div class="form-group">
                     <label for="register-email">Email</label>
@@ -139,81 +68,13 @@
     </div>
 
     <script>
-        // Close modals when clicking outside of them
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = 'none';
-            }
-        }
-
-        // Login form submission
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            fetch('/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    // Store tokens in localStorage
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('refresh_token', data.refresh_token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // Redirect to dashboard or reload page
-                    window.location.href = '/';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred during login');
-            });
-        });
-
-        // Register form submission
-        document.getElementById('register-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const tenant_name = document.getElementById('tenant-name').value;
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            
-            fetch('/auth/register-tenant', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ tenant_name, username, email, password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    // Store tokens in localStorage
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('refresh_token', data.refresh_token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.setItem('tenant', JSON.stringify(data.tenant));
-                    
-                    // Redirect to dashboard or reload page
-                    window.location.href = '/';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred during registration');
-            });
-        });
+        // Initialize modals
+        initModal('login-modal');
+        initModal('register-modal');
+        
+        // Setup form handlers
+        handleLogin('login-form', 'login-email', 'login-password');
+        handleTenantRegistration('register-form', 'tenant-name', 'register-email', 'register-password');
     </script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - Echo{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Welcome to Your Dashboard</h2>
+    <div id="user-info">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Role:</strong> {{ user.role }}</p>
+        <p><strong>Organization:</strong> {{ tenant.domain_name }}</p>
+    </div>
+    
+    <div class="dashboard-menu">
+        <h3>Quick Actions</h3>
+        <ul>
+            <li><a href="#" class="btn">My Profile</a></li>
+            <li><a href="#" class="btn">Settings</a></li>
+            <li><a href="#" class="btn">Reports</a></li>
+        </ul>
+    </div>
+    
+    <div class="form-actions">
+        <button id="logout-btn" class="btn">Logout</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            // Clear local storage (optional if still used by client)
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('tenant');
+            
+            // Redirect to logout route to clear cookie and go to landing page
+            window.location.href = '/auth/logout';
+        });
+    });
+</script>
+{% endblock %}

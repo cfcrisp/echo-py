@@ -1,3 +1,4 @@
+from flask import Flask
 from app import create_app
 from app.models import *
 from app.extensions import db
