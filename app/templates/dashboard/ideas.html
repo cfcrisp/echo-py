@@ -1,0 +1,49 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Ideas - Echo{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Ideas</h2>
+        <p class="text-muted">Brainstorm and prioritize new features or improvements.</p>
+    </div>
+    <button class="btn btn-primary">+ Add Idea</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Initiative ID</th>
+            <th>Priority</th>
+            <th>Effort</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for idea in ideas %}
+        <tr>
+            <td>{{ idea.title }}</td>
+            <td>{{ idea.description or 'N/A' }}</td>
+            <td>{{ idea.initiative_id or 'N/A' }}</td>
+            <td>{{ idea.priority }}</td>
+            <td>{{ idea.effort }}</td>
+            <td>{{ idea.source }}</td>
+            <td>{{ idea.status }}</td>
+            <td>{{ idea.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <button class="btn-action btn-edit" data-record-id="{{ idea.id }}" data-record-type="idea"><span class="icon">✏️</span></button>
+                <button class="btn-action btn-delete" data-record-id="{{ idea.id }}" data-record-type="idea"><span class="icon">🗑️</span></button>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="text-muted">No ideas found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - Echo{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar bg-light border-end">
+        <div class="sidebar-header p-4 border-bottom">
+            <h3 class="mb-0">Echo</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="d-flex flex-column h-100 p-4">
+                <div class="mb-4">
+                    <a href="/auth/dashboard" class="nav-link {% if active_section == 'goals' %}active{% endif %}"><i class="bi bi-trophy"></i>Goals</a>
+                    <a href="/auth/initiatives" class="nav-link {% if active_section == 'initiatives' %}active{% endif %}"><i class="bi bi-list"></i>Initiatives</a>
+                    <a href="/auth/feedback" class="nav-link {% if active_section == 'feedback' %}active{% endif %}"><i class="bi bi-chat-square-dots"></i>Feedback</a>
+                    <a href="/auth/ideas" class="nav-link {% if active_section == 'ideas' %}active{% endif %}"><i class="bi bi-lightbulb"></i>Ideas</a>
+                </div>
+                
+                <div class="spacer"></div>
+                
+                <div class="nav-group border-top pt-3">
+                    <a href="#" class="nav-link"><i class="bi bi-gear"></i>Settings</a>
+                    <a href="/auth/logout" class="nav-link text-danger"><i class="bi bi-arrow-left"></i>Log out</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content p-4">
+        {% block dashboard_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Initiatives - Echo{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Initiatives</h2>
+        <p class="text-muted">Create initiatives to achieve your strategic goals.</p>
+    </div>
+    <button class="btn btn-primary">+ Add Initiative</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Goal ID</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for initiative in initiatives %}
+        <tr>
+            <td>{{ initiative.title }}</td>
+            <td>{{ initiative.description or 'N/A' }}</td>
+            <td>{{ initiative.goal_id or 'N/A' }}</td>
+            <td>{{ initiative.status }}</td>
+            <td>{{ initiative.priority }}</td>
+            <td>{{ initiative.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <button class="btn-action btn-edit" data-record-id="{{ initiative.id }}" data-record-type="initiative"><span class="icon">✏️</span></button>
+                <button class="btn-action btn-delete" data-record-id="{{ initiative.id }}" data-record-type="initiative"><span class="icon">🗑️</span></button>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted">No initiatives found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

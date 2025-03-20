@@ -113,9 +113,15 @@ def dashboard():
     if user.tenant_id != tenant.id:
         return jsonify({'error': 'Tenant mismatch'}), 403
     
-    return render_template('dashboard/index.html', 
+    # In a real application, you would fetch goals from the database
+    # For now, we'll just render the template with empty data
+    goals = []
+    
+    return render_template('dashboard/goals.html', 
                           user=user, 
-                          tenant=tenant)
+                          tenant=tenant,
+                          goals=goals,
+                          active_section='goals')
 
 # app/auth/routes.py (partial update for /register-tenant)
 @bp.route('/register-tenant', methods=['POST'])
@@ -196,3 +202,69 @@ def logout():
     response = make_response(redirect('/'))  # Redirect to landing page
     response.delete_cookie('access_token')   # Clear the access_token cookie
     return response
+
+@bp.route('/initiatives', methods=['GET'])
+@jwt_required()
+def initiatives():
+    user_id = get_jwt_identity()  # String (user_id)
+    claims = get_jwt()  # Full JWT payload
+    user = User.query.get_or_404(uuid.UUID(user_id))
+    tenant = Tenant.query.get_or_404(uuid.UUID(claims['tenant_id']))
+    
+    # Validate tenant_id consistency
+    if user.tenant_id != tenant.id:
+        return jsonify({'error': 'Tenant mismatch'}), 403
+    
+    # In a real application, you would fetch initiatives from the database
+    # For now, we'll just render the template with empty data
+    initiatives = []
+    
+    return render_template('dashboard/initiatives.html', 
+                          user=user, 
+                          tenant=tenant,
+                          initiatives=initiatives,
+                          active_section='initiatives')
+
+@bp.route('/feedback', methods=['GET'])
+@jwt_required()
+def feedback():
+    user_id = get_jwt_identity()  # String (user_id)
+    claims = get_jwt()  # Full JWT payload
+    user = User.query.get_or_404(uuid.UUID(user_id))
+    tenant = Tenant.query.get_or_404(uuid.UUID(claims['tenant_id']))
+    
+    # Validate tenant_id consistency
+    if user.tenant_id != tenant.id:
+        return jsonify({'error': 'Tenant mismatch'}), 403
+    
+    # In a real application, you would fetch feedback from the database
+    # For now, we'll just render the template with empty data
+    feedback = []
+    
+    return render_template('dashboard/feedback.html', 
+                          user=user, 
+                          tenant=tenant,
+                          feedback=feedback,
+                          active_section='feedback')
+
+@bp.route('/ideas', methods=['GET'])
+@jwt_required()
+def ideas():
+    user_id = get_jwt_identity()  # String (user_id)
+    claims = get_jwt()  # Full JWT payload
+    user = User.query.get_or_404(uuid.UUID(user_id))
+    tenant = Tenant.query.get_or_404(uuid.UUID(claims['tenant_id']))
+    
+    # Validate tenant_id consistency
+    if user.tenant_id != tenant.id:
+        return jsonify({'error': 'Tenant mismatch'}), 403
+    
+    # In a real application, you would fetch ideas from the database
+    # For now, we'll just render the template with empty data
+    ideas = []
+    
+    return render_template('dashboard/ideas.html', 
+                          user=user, 
+                          tenant=tenant,
+                          ideas=ideas,
+                          active_section='ideas')

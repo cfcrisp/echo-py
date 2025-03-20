@@ -1,0 +1,271 @@
+/* dashboard.css */
+
+/* General dashboard container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    border-right: 1px solid #dee2e6;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #000;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    color: #495057;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #000;
+    font-weight: 500;
+}
+
+.nav-link .icon {
+    margin-right: 10px;
+}
+
+.nav-section {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin: 15px 0 5px;
+}
+
+/* Spacer to push Settings and Log out to the bottom */
+.spacer {
+    flex-grow: 1;
+}
+
+/* Main content styles */
+.main-content {
+    margin-left: 250px;
+    flex: 1;
+    padding: 40px;
+    background-color: #fff;
+}
+
+.main-content h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.main-content .text-muted {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Initiative list styles */
+.initiative-list .initiative-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.initiative-list .initiative-item h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+.initiative-list .initiative-item .text-muted {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.initiative-list .card-link {
+    color: #495057;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.initiative-list .card-link:hover {
+    text-decoration: underline;
+}
+
+.initiative-actions .btn-link {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 0;
+}
+
+.initiative-actions .btn-link:hover {
+    color: #000;
+}
+
+/* Add Initiative button */
+.btn-primary {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-primary:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #000;
+}
+
+.btn-outline-secondary {
+    display: none;
+}
+
+.nav-link i {
+    margin-right: 10px; 
+}
+
+/* Goal list styles */
+.goal-list .goal-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.goal-list .goal-item h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+.goal-list .goal-item .badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+.goal-actions .btn-link {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 0;
+}
+
+.goal-actions .btn-link:hover {
+    color: #000;
+}
+
+/* Feedback list styles */
+.feedback-list .feedback-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.feedback-list .feedback-item h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+.feedback-list .feedback-item .badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+.feedback-actions .btn-link {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 0;
+}
+
+.feedback-actions .btn-link:hover {
+    color: #000;
+}
+
+/* Idea list styles */
+.idea-list .idea-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.idea-list .idea-item h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+.idea-list .idea-item .badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+.idea-actions .btn-link {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 0;
+}
+
+.idea-actions .btn-link:hover {
+    color: #000;
+}

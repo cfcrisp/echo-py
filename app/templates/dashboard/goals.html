@@ -1,0 +1,41 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Goals - Echo{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Goals</h2>
+        <p class="text-muted">Define and track your strategic objectives.</p>
+    </div>
+    <button class="btn btn-primary">+ Add Goal</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Target Date</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for goal in goals %}
+        <tr>
+            <td>{{ goal.title }}</td>
+            <td>{{ goal.description or 'N/A' }}</td>
+            <td>{{ goal.target_date.strftime('%Y-%m-%d') if goal.target_date else 'N/A' }}</td>
+            <td>{{ goal.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <button class="btn-action btn-edit" data-record-id="{{ goal.id }}" data-record-type="goal"><span class="icon">✏️</span></button>
+                <button class="btn-action btn-delete" data-record-id="{{ goal.id }}" data-record-type="goal"><span class="icon">🗑️</span></button>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">No goals found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
