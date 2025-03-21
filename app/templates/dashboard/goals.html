@@ -8,34 +8,108 @@
         <h2 class="mb-0">Goals</h2>
         <p class="text-muted">Define and track your strategic objectives.</p>
     </div>
-    <button class="btn btn-primary">+ Add Goal</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal">+ Add Goal</button>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Target Date</th>
-            <th>Created At</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for goal in goals %}
-        <tr>
-            <td>{{ goal.title }}</td>
-            <td>{{ goal.description or 'N/A' }}</td>
-            <td>{{ goal.target_date.strftime('%Y-%m-%d') if goal.target_date else 'N/A' }}</td>
-            <td>{{ goal.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>
-                <button class="btn-action btn-edit" data-record-id="{{ goal.id }}" data-record-type="goal"><span class="icon">✏️</span></button>
-                <button class="btn-action btn-delete" data-record-id="{{ goal.id }}" data-record-type="goal"><span class="icon">🗑️</span></button>
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5" class="text-muted">No goals found.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="goal-list">
+    {% for goal in goals %}
+    <div class="goal-item" data-id="{{ goal.id }}" data-bs-toggle="modal" data-bs-target="#editGoalModal" onclick="populateEditModal({{ goal.id | tojson }}, {{ goal.title | tojson }}, {{ goal.description | tojson | default('') }}, {{ goal.target_date | tojson | default('') }}, {{ goal.status | tojson }})">
+        <div class="goal-status">
+            <span class="badge {{ 'badge-success' if goal.status == 'Completed' else 'badge-primary' }}">{{ goal.status }}</span>
+        </div>
+        <div class="goal-content">
+            <div class="goal-details">
+                <h5>{{ goal.title }}</h5>
+                <p class="text-muted">{{ goal.description or 'N/A' }}</p>
+            </div>
+            <div class="goal-target-date">
+                <span class="target-date">{{ goal.target_date.strftime('%B %d, %Y') if goal.target_date else 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No goals found.</p>
+    {% endfor %}
+</div>
+
+<!-- Add Goal Modal -->
+<div class="modal fade" id="addGoalModal" tabindex="-1" aria-labelledby="addGoalModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addGoalModalLabel">Add New Goal</h5>
+            </div>
+            <form id="addGoalForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="goalTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="goalTitle" name="title" maxlength="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="goalDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalTargetDate" class="form-label">Target Date</label>
+                        <input type="date" class="form-control" id="goalTargetDate" name="target_date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="goalStatus" class="form-label">Status</label>
+                        <select class="form-control" id="goalStatus" name="status">
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Goal Modal -->
+<div class="modal fade" id="editGoalModal" tabindex="-1" aria-labelledby="editGoalModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGoalModalLabel">Edit Goal</h5>
+            </div>
+            <form id="editGoalForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editGoalId" name="id">
+                    <div class="mb-3">
+                        <label for="editGoalTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editGoalTitle" name="title" maxlength="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGoalDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editGoalDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGoalTargetDate" class="form-label">Target Date</label>
+                        <input type="date" class="form-control" id="editGoalTargetDate" name="target_date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGoalStatus" class="form-label">Status</label>
+                        <select class="form-control" id="editGoalStatus" name="status">
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="deleteGoal()">Delete Goal</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/goals.js') }}"></script>
 {% endblock %}

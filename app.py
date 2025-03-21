@@ -10,14 +10,14 @@ def make_shell_context():
     """Configure shell context for Flask shell."""
     return {
         'db': db,
-        #'Tenant': Tenant,
-        #'User': User,
-        #'Goal': Goal,
-        #'Initiative': Initiative,
-        #'Customer': Customer,
-        #'Idea': Idea,
-        #'Feedback': Feedback,
-        #'Comment': Comment
+        'Tenant': Tenant,
+        'User': User,
+        'Goal': Goal,
+        'Initiative': Initiative,
+        'Customer': Customer,
+        'Idea': Idea,
+        'Feedback': Feedback,
+        'Comment': Comment
     }
 
 if __name__ == '__main__':

@@ -113,9 +113,9 @@ def dashboard():
     if user.tenant_id != tenant.id:
         return jsonify({'error': 'Tenant mismatch'}), 403
     
-    # In a real application, you would fetch goals from the database
-    # For now, we'll just render the template with empty data
-    goals = []
+    # Fetch goals for the current tenant
+    from app.models.goal import Goal
+    goals = Goal.query.filter_by(tenant_id=tenant.id).all()
     
     return render_template('dashboard/goals.html', 
                           user=user, 

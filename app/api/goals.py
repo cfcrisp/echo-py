@@ -21,38 +21,11 @@ def get_goals():
                 'title': goal.title,
                 'description': goal.description,
                 'target_date': goal.target_date.isoformat() if goal.target_date else None,
+                'status': goal.status,  
                 'created_at': goal.created_at.isoformat(),
                 'updated_at': goal.updated_at.isoformat(),
                 'initiative_count': goal.initiatives.count()
             } for goal in goals
-        ]
-    })
-
-@bp.route('/goals/<uuid:goal_id>', methods=['GET'])
-@jwt_required()
-def get_goal(goal_id):
-    current_user = AuthService.get_current_user()
-    
-    goal = Goal.query.get_or_404(goal_id)
-    
-    # Check tenant isolation
-    AuthService.ensure_user_tenant_match(current_user, goal)
-    
-    return jsonify({
-        'id': str(goal.id),
-        'title': goal.title,
-        'description': goal.description,
-        'target_date': goal.target_date.isoformat() if goal.target_date else None,
-        'created_at': goal.created_at.isoformat(),
-        'updated_at': goal.updated_at.isoformat(),
-        'initiative_count': goal.initiatives.count(),
-        'initiatives': [
-            {
-                'id': str(initiative.id),
-                'title': initiative.title,
-                'status': initiative.status,
-                'priority': initiative.priority
-            } for initiative in goal.initiatives.all()
         ]
     })
 
@@ -79,7 +52,8 @@ def create_goal():
         tenant_id=current_user.tenant_id,
         title=data['title'],
         description=data.get('description', ''),
-        target_date=target_date
+        target_date=target_date,
+        status=data.get('status', 'In Progress')  # Handle status
     )
     
     db.session.add(goal)
@@ -90,6 +64,7 @@ def create_goal():
         'title': goal.title,
         'description': goal.description,
         'target_date': goal.target_date.isoformat() if goal.target_date else None,
+        'status': goal.status,  # Include status
         'created_at': goal.created_at.isoformat(),
         'updated_at': goal.updated_at.isoformat()
     }), 201
@@ -121,6 +96,9 @@ def update_goal(goal_id):
             except ValueError:
                 return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
     
+    if 'status' in data:
+        goal.status = data['status']  # Update status if provided
+    
     db.session.commit()
     
     return jsonify({
@@ -128,6 +106,7 @@ def update_goal(goal_id):
         'title': goal.title,
         'description': goal.description,
         'target_date': goal.target_date.isoformat() if goal.target_date else None,
+        'status': goal.status,  # Include status
         'created_at': goal.created_at.isoformat(),
         'updated_at': goal.updated_at.isoformat()
     })

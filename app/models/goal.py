@@ -10,6 +10,7 @@ class Goal(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     target_date = db.Column(db.Date)
+    status = db.Column(db.String(20), nullable=False, default='In Progress') 
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Attach event listeners to action buttons
     attachActionEventListeners();
+    
+    // Add Goal button functionality
+    const addGoalBtn = document.querySelector('button.btn-primary');
+    if (addGoalBtn && addGoalBtn.textContent.includes('Add Goal')) {
+        addGoalBtn.addEventListener('click', openAddGoalModal);
+    }
 });
 
 
@@ -86,6 +92,109 @@ function attachActionEventListeners() {
             }
         });
     });
+}
+
+/**
+ * Opens the Add Goal modal
+ */
+function openAddGoalModal() {
+    // Check if modal already exists
+    let modal = document.getElementById('addGoalModal');
+    
+    // If modal doesn't exist, create it
+    if (!modal) {
+        const modalHTML = `
+        <div class="modal fade" id="addGoalModal" tabindex="-1" aria-labelledby="addGoalModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addGoalModalLabel">Add New Goal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addGoalForm">
+                            <div class="mb-3">
+                                <label for="goalTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="goalTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="goalDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="goalDescription" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="goalTargetDate" class="form-label">Target Date</label>
+                                <input type="date" class="form-control" id="goalTargetDate">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveGoalBtn">Save Goal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+        // Append modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        modal = document.getElementById('addGoalModal');
+        
+        // Add event listener to save button
+        document.getElementById('saveGoalBtn').addEventListener('click', saveGoal);
+    }
+    
+    // Show the modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+/**
+ * Saves a new goal
+ */
+async function saveGoal() {
+    const titleInput = document.getElementById('goalTitle');
+    const descriptionInput = document.getElementById('goalDescription');
+    const targetDateInput = document.getElementById('goalTargetDate');
+    
+    // Validate form
+    if (!titleInput.value.trim()) {
+        alert('Title is required');
+        return;
+    }
+    
+    // Prepare data
+    const goalData = {
+        title: titleInput.value.trim(),
+        description: descriptionInput.value.trim(),
+        target_date: targetDateInput.value || null
+    };
+    
+    try {
+        // Send request to create goal
+        const response = await authFetch('/api/goals', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(goalData)
+        });
+        
+        if (response.ok) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addGoalModal'));
+            modal.hide();
+            
+            // Refresh page to show new goal
+            window.location.reload();
+        } else {
+            const errorData = await response.json();
+            alert(`Failed to create goal: ${errorData.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error creating goal:', error);
+        alert('Failed to create goal. Please try again.');
+    }
 }
 
 /**

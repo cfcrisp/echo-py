@@ -169,37 +169,86 @@
 }
 
 /* Goal list styles */
+.goal-list {
+    max-width: 800px; /* Limit width for better readability with few items */
+    margin: 0 auto; /* Center the list */
+}
+
 .goal-list .goal-item {
     background-color: #fff;
     border: 1px solid #dee2e6;
-    border-radius: 8px;
+    border-radius: 12px; /* More rounded corners to match the image */
     padding: 20px;
     margin-bottom: 20px;
     display: flex;
-    justify-content: space-between;
-    align-items: start;
+    align-items: center; /* Center vertically */
+    gap: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer; /* Indicate the item is clickable */
 }
 
-.goal-list .goal-item h5 {
-    font-size: 1.25rem;
+.goal-list .goal-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.goal-status {
+    min-width: 100px;
+}
+
+.goal-status .badge {
+    font-size: 0.85rem;
+    padding: 5px 15px; /* More padding to match the image */
+    border-radius: 20px; /* More rounded to match the image */
+    text-transform: capitalize; /* Match the image's text style */
+}
+
+.goal-status .badge-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.goal-status .badge-primary {
+    background-color: #e7f1ff; /* Lighter blue to match the image */
+    color: #0056b3; /* Darker blue text to match the image */
+}
+
+.goal-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    gap: 20px;
+}
+
+.goal-details {
+    flex: 1;
+}
+
+.goal-details h5 {
+    font-size: 1.1rem;
     font-weight: 600;
     color: #000;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
-.goal-list .goal-item .badge {
-    font-size: 0.85rem;
-    padding: 5px 10px;
-}
-
-.goal-actions .btn-link {
+.goal-details .text-muted {
+    font-size: 0.9rem;
     color: #6c757d;
-    text-decoration: none;
-    padding: 0;
+    margin-bottom: 0;
+    line-height: 1.4;
 }
 
-.goal-actions .btn-link:hover {
-    color: #000;
+.goal-target-date {
+    min-width: 120px; /* Slightly wider to accommodate the new format */
+    text-align: right;
+}
+
+.goal-target-date .target-date {
+    font-size: 0.9rem;
+    font-weight: bold; /* Make the date bold */
+    color: #6c757d;
 }
 
 /* Feedback list styles */
@@ -268,4 +317,19 @@
 
 .idea-actions .btn-link:hover {
     color: #000;
+}
+
+/* Delete button in modal */
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
